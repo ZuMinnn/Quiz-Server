@@ -1,0 +1,4 @@
+[33m645c531[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m Update CORS configuration
+[33mf9cf534[m Improve database connection error handling
+[33mfa19c54[m Update CORS configuration for deployment
+[33m9c5c8c1[m Initial commit - Quiz App Server

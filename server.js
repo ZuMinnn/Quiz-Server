@@ -15,7 +15,7 @@ const app = express()
 /** app middlewares */
 app.use(morgan('tiny'));
 app.use(cors({
-  origin: '*',
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -28,15 +28,37 @@ const __dirname = path.dirname(__filename);
 
 
 /** appliation port */
-const port = process.env.PORT || 8080;
-app.use('/audio', cors(), express.static(path.join(__dirname, 'public/audio'), {
+const port = process.env.PORT || 5000;
+
+// Cấu hình CORS cho thư mục audio
+app.use('/audio', cors({
+  origin: '*',
+  methods: ['GET', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}), express.static(path.join(__dirname, 'public/audio'), {
   setHeaders: (res, path) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Length');
+    res.setHeader('Content-Type', 'audio/mpeg');
   }
 }));
+
+// Thêm middleware để xử lý lỗi khi tệp âm thanh không tồn tại
+app.use('/audio', (req, res, next) => {
+  const filePath = path.join(__dirname, 'public/audio', req.path);
+  const fs = require('fs');
+  
+  if (!fs.existsSync(filePath)) {
+    console.error(`Audio file not found: ${filePath}`);
+    return res.status(404).json({ error: 'Audio file not found' });
+  }
+  
+  next();
+});
 
 /** routes */
 app.use('/api', router) /** apis */
